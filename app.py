@@ -513,10 +513,8 @@ if theme == "dark":
         .logo-line {
             background-color: #FDB813 !important;
         }
-        /* Button High-Contrast Styling for Dark Mode */
+        /* Button High-Contrast Styling */
         div.stButton > button {
-            background-color: #1F2635 !important;
-            color: #FFFFFF !important;
             border: 1px solid #FF4B4B !important;
             font-weight: 600 !important;
             border-radius: 8px !important;
@@ -530,6 +528,7 @@ if theme == "dark":
         }
     </style>
     """, unsafe_allow_html=True)
+
 else:
     st.markdown("""
     <style>
@@ -1003,9 +1002,13 @@ else:
                 """, unsafe_allow_html=True)
 
 
-                # Show Odds Comparison
+                # Show Odds & Recommended Stake Comparison
                 st.markdown(f"### {labels['suggested_odds']}")
-                col_o1, col_o2 = st.columns(2)
+                
+                kelly_m = HockeyPredictorML.calculate_kelly_and_ev(prob_a, adj_odd_a, bankroll=bankroll)
+                currency_unit = "Kč" if lang == "CZ" else "$"
+                
+                col_o1, col_o2, col_o3 = st.columns(3)
                 with col_o1:
                     st.metric(
                         label=labels["decimal_odd_home"].format(team=team_a),
@@ -1020,6 +1023,14 @@ else:
                         delta=labels["raw_odd"].format(odd=raw_odd_b),
                         help=labels["help_odd"]
                     )
+                with col_o3:
+                    st.metric(
+                        label=labels["kelly_stake_label"],
+                        value=f"{kelly_m['recommended_stake']:,.0f} {currency_unit}",
+                        delta=f"{kelly_m['kelly_pct']:.1f} % (EV {kelly_m['ev_pct']:+.1f}%)" if kelly_m['ev_pct'] > 0 else "0 % (EV ≤ 0%)",
+                        help=labels["help_bankroll"]
+                    )
+
 
                 # Model Comparison Chart
                 st.markdown("---")
