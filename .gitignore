@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Data files (keep raw, interim and processed out of git)
+hockey_dashboard/data/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
