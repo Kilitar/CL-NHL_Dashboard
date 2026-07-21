@@ -179,10 +179,15 @@ Umožňuje porovnat modelový fér kurz s tržním kurzem sázkové kanceláře 
 
 ---
 
-## ⚙️ 7. MLOps & Automatizace datové pipeline (GitHub Actions)
+## ⚙️ 7. MLOps & Automatizace datové pipeline (GitHub Actions & Official NHL API)
 
-Soubor `.github/workflows/scrape_data.yml` zajišťuje plnou automatizaci datového toku:
-- **Týdenní cron plán (`0 0 * * 0`)** a možnost ručního spuštění z GitHub UI.
-- Spustí `python run.py`, stagne nejnovější HTML stránky a zaktualizuje CSV.
-- V případě detekce nových dat skript automaticky vytvoří commit a push do repozitáře.
+Datový tok a automatická aktualizace databáze funguje ve 2 úrovních:
+- **Oficiální NHL REST API Integration (`src/fetch_full_nhl_data.py`)**:
+  - Dynamicky získává kompletní ligové tabulky a statistiky zápasů od roku **1990 až po současnou i budoucí sezóny** (`https://api-web.nhle.com/v1/standings/{date}`).
+  - Bez omezení horního roku skript automaticky rozpoznává a přidává nové sezóny (např. 2025/2026, 2026/2027+) ihned po odehrání základní části.
+- **GitHub Actions Workflow (`.github/workflows/scrape_data.yml`)**:
+  - **Týdenní cron plán (`0 0 * * 0`)** a možnost ručního spuštění z GitHub UI.
+  - Spustí `python run.py`, aktualizuje databázi na **1000+ záznamů** a v případě detekce nových odehraných zápasů automaticky vytvoří commit a push do repozitáře `CL-NHL_Dashboard`.
+- **Živá rozpisová integrace (`src/schedule.py`)**:
+  - Přímé živé dotazování rozpisů neodehraných zápasů v reálném čase pro záložku *Kalendář zápasů*.
 

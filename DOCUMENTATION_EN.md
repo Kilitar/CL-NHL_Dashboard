@@ -178,9 +178,14 @@ Compares model fair odds with bookmaker market odds to estimate expected value a
 
 ---
 
-## ⚙️ 7. MLOps & Automated Data Pipeline (GitHub Actions)
+## ⚙️ 7. MLOps & Automated Data Pipeline (GitHub Actions & Official NHL API)
 
-The `.github/workflows/scrape_data.yml` file provides full pipeline automation:
-- **Weekly cron schedule (`0 0 * * 0`)** and manual trigger support from GitHub UI.
-- Executes `python run.py`, fetches raw HTML pages, and updates interim JSON and final CSV files.
-- Automatically commits and pushes updated datasets back to the repository whenever new data is detected.
+Data flow and automated dataset synchronization operates across 2 tiers:
+- **Official NHL REST API Integration (`src/fetch_full_nhl_data.py`)**:
+  - Dynamically retrieves full league standings and season records from **1990 up to current and future seasons** (`https://api-web.nhle.com/v1/standings/{date}`).
+  - Unbounded upper-year fetch logic automatically detects and ingests new completed seasons (e.g. 2025/2026, 2026/2027+) as games finish.
+- **GitHub Actions Workflow (`.github/workflows/scrape_data.yml`)**:
+  - **Weekly cron schedule (`0 0 * * 0`)** and manual workflow_dispatch execution from GitHub UI.
+  - Executes `python run.py`, expands dataset to **1,000+ seasonal team records**, and automatically commits/pushes updated data back to the `CL-NHL_Dashboard` repository.
+- **Live Match Schedule API (`src/schedule.py`)**:
+  - Real-time live endpoint querying for upcoming fixture dates in the *Match Schedule* tab.
