@@ -27,9 +27,9 @@ def fetch_full_nhl_data():
         season_id = s.get("id")
         end_date = s.get("standingsEnd")
         
-        # Filter for seasons from 1990 onwards (e.g. seasonId >= 19901991)
+        # Filter for seasons from 1990 onwards
         start_year = int(str(season_id)[:4])
-        if start_year < 1990 or start_year > 2025:
+        if start_year < 1990:
             continue
             
         print(f"Fetching standings for season {start_year} (End date: {end_date})...")
