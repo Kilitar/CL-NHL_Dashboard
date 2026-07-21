@@ -506,21 +506,9 @@ if theme == "dark":
         .logo-line {
             background-color: #FDB813 !important;
         }
-        /* Button High-Contrast Styling */
-        div.stButton > button {
-            border: 1px solid #FF4B4B !important;
-            font-weight: 600 !important;
-            border-radius: 8px !important;
-            transition: all 0.2s ease-in-out !important;
-        }
-        div.stButton > button:hover {
-            background-color: #FF4B4B !important;
-            color: #FFFFFF !important;
-            border-color: #FF4B4B !important;
-            box-shadow: 0 4px 12px rgba(255, 75, 75, 0.4) !important;
-        }
     </style>
     """, unsafe_allow_html=True)
+
 
 else:
     st.markdown("""
@@ -1182,13 +1170,14 @@ else:
                         
                     with col_m4:
                         st.caption(f"🕒 {m['formatted_date']}")
-                        if st.button(labels["btn_simulate"], key=f"btn_sim_{idx}_{h_name[:3]}_{a_name[:3]}"):
+                        if st.button(labels["btn_simulate"], key=f"btn_sim_{idx}_{h_name[:3]}_{a_name[:3]}", type="primary"):
                             st.session_state["team_a"] = h_name
                             st.session_state["team_b"] = a_name
                             st.query_params["team_a"] = h_name
                             st.query_params["team_b"] = a_name
                             st.session_state["pending_nav"] = labels["nav_simulator"]
                             st.rerun()
+
 
 
                             
