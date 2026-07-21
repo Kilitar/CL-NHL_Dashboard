@@ -182,9 +182,9 @@ Umožňuje porovnat modelový fér kurz s tržním kurzem sázkové kanceláře 
 ## ⚙️ 7. MLOps & Automatizace datové pipeline (GitHub Actions & Official NHL API)
 
 Datový tok a automatická aktualizace databáze funguje ve 2 úrovních:
-- **Oficiální NHL REST API Integration (`src/fetch_full_nhl_data.py`)**:
-  - Dynamicky získává kompletní ligové tabulky a statistiky zápasů od roku **1990 až po současnou i budoucí sezóny** (`https://api-web.nhle.com/v1/standings/{date}`).
-  - Bez omezení horního roku skript automaticky rozpoznává a přidává nové sezóny (např. 2025/2026, 2026/2027+) ihned po odehrání základní části.
+- **Oficiální NHL REST API & Incremental Load (`src/fetch_full_nhl_data.py`)**:
+  - **Inkrementální načítání (Delta Fetching)**: Systém neprovádí neefektivní stahování celé historie při každém běhu. Skript při spuštění zkontroluje stávající databázi (`hockey_teams.csv`), ověří již uložené sezóny a z API dotahuje **pouze novou deltu (aktuální neuzavřené ročníky a nové sezóny)**.
+  - Dynamicky propojuje historická data od roku 1990 s aktuálními ročníky bez zbytečného síťového zatížení.
 - **GitHub Actions Workflow (`.github/workflows/scrape_data.yml`)**:
   - **Týdenní cron plán (`0 0 * * 0`)** a možnost ručního spuštění z GitHub UI.
   - Spustí `python run.py`, aktualizuje databázi na **1000+ záznamů** a v případě detekce nových odehraných zápasů automaticky vytvoří commit a push do repozitáře `CL-NHL_Dashboard`.
