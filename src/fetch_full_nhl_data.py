@@ -88,12 +88,32 @@ def fetch_full_nhl_data():
         except Exception as err:
             print(f"Error fetching season {start_year}: {err}")
             
-    df = pd.DataFrame(records)
+    # Clean up team names for consistency with UI logos/naming
+    name_replacements = {
+        "Mighty Ducks of Anaheim": "Mighty Ducks of Anaheim",
+        "Anaheim Ducks": "Anaheim Ducks",
+        "Phoenix Coyotes": "Phoenix Coyotes",
+        "Arizona Coyotes": "Arizona Coyotes",
+        "Utah Hockey Club": "Utah Hockey Club",
+    }
+    df["team"] = df["team"].replace(name_replacements)
     
+    # Save log report
+    log_file = os.path.join(base_dir, "pipeline_status.log")
+    if len(records) == 0:
+        error_msg = "[CRITICAL ERROR] NHL API fetch returned 0 records! Pipeline execution failed."
+        with open(log_file, "w", encoding="utf-8") as f:
+            f.write(error_msg + "\n")
+        raise RuntimeError(error_msg)
+        
+    log_msg = f"[SUCCESS] Updated {output_file} with {len(df)} records across {df['season'].nunique()} seasons (1990-{df['season'].max()})."
+    with open(log_file, "w", encoding="utf-8") as f:
+        f.write(log_msg + "\n")
+        
     # Save to processed CSV
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     df.to_csv(output_file, sep=';', index=False)
-    print(f"Successfully updated {output_file} with {len(df)} total records from 1990 to {df['season'].max()}!")
+    print(log_msg)
 
 if __name__ == "__main__":
     fetch_full_nhl_data()
