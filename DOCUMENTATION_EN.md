@@ -187,5 +187,7 @@ Data flow and automated dataset synchronization operates across 2 tiers:
 - **GitHub Actions Workflow (`.github/workflows/scrape_data.yml`)**:
   - **Weekly cron schedule (`0 0 * * 0`)** and manual workflow_dispatch execution from GitHub UI.
   - Executes `python run.py`, expands dataset to **1,000+ seasonal team records**, and automatically commits/pushes updated data back to the `CL-NHL_Dashboard` repository.
-- **Live Match Schedule API (`src/schedule.py`)**:
-  - Real-time live endpoint querying for upcoming fixture dates in the *Match Schedule* tab.
+- **Error Reporting & Status Logging (`pipeline_status.log`)**:
+  - In the event of an API outage or zero records returned, the script raises a fatal `RuntimeError`.
+  - GitHub Actions immediately marks the build as `Failed` and triggers an automated email notification to maintainers.
+  - Execution outcome is audited in `pipeline_status.log` detailing total records and processed season counts.

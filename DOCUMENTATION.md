@@ -188,6 +188,8 @@ Datový tok a automatická aktualizace databáze funguje ve 2 úrovních:
 - **GitHub Actions Workflow (`.github/workflows/scrape_data.yml`)**:
   - **Týdenní cron plán (`0 0 * * 0`)** a možnost ručního spuštění z GitHub UI.
   - Spustí `python run.py`, aktualizuje databázi na **1000+ záznamů** a v případě detekce nových odehraných zápasů automaticky vytvoří commit a push do repozitáře `CL-NHL_Dashboard`.
-- **Živá rozpisová integrace (`src/schedule.py`)**:
-  - Přímé živé dotazování rozpisů neodehraných zápasů v reálném čase pro záložku *Kalendář zápasů*.
+- **Reporting & Detekce chyb (`pipeline_status.log`)**:
+  - V případě výpadku NHL API nebo navrácení 0 záznamů skript vyvolá výjimku `RuntimeError`.
+  - GitHub Actions při chybě okamžitě označí sestavení jako selhané (`Failed`) a zašle e-mailové upozornění vývojářům.
+  - Výsledek každého běhu je zaznamenán do souboru `pipeline_status.log` s časovým razítkem a počtem zpracovaných sezón.
 
