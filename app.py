@@ -198,15 +198,10 @@ t = {
         "all_teams_option": "Celá liga (Všechny týmy)",
         "help_heatmap": "Globální korelace počítá vzájemné vztahy napříč všemi týmy ligy. Výběrem týmu zobrazíte specifickou korelační matici daného klubu.",
         "actual_teams_only": "Pouze současné týmy (Actual teams only)",
-        "help_actual_teams": "Filtruje pouze aktivní týmy NHL a skryje historické/přejmenované franšízy (např. Atlanta Thrashers, Hartford Whalers, Mighty Ducks, Quebec Nordiques)."
+        "help_actual_teams": "Filtruje pouze aktivní týmy NHL a skryje historické/přejmenované franšízy (např. Atlanta Thrashers, Hartford Whalers, Mighty Ducks, Quebec Nordiques).",
+        "help_bankroll": "Doporučená výše sázky spočítaná podle Half-Kellyho kritéria přizpůsobená zadanému bankrollu."
     },
     "EN": {
-
-
-
-
-
-
         "title": "Hockey Analytics Dashboard",
         "subtitle": "Premium betting insights, league classification, and historical trend analysis",
         "total_teams": "Total Teams",
@@ -256,8 +251,6 @@ t = {
         "schedule_desc": "Live schedule of upcoming games from the official NHL API with 1-click instant prediction simulation",
         "btn_simulate": "⚡ Simulate Match in Calculator",
         "err_data": "Data was not found! Please run the pipeline script `run.py` first to collect and process data.",
-
-
         "info_run": "You can run the data pipeline by executing `python run.py` in the terminal.",
         "help_total_teams": "Number of unique hockey teams in historical records (df['team'].nunique()).",
         "help_total_seasons": "Number of league seasons covered in the dataset (df['season'].nunique()).",
