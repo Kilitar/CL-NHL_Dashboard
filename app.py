@@ -285,7 +285,8 @@ t = {
         "all_teams_option": "Entire League (All Teams)",
         "help_heatmap": "Global correlation evaluates relationships across all league teams. Select a specific team to inspect that franchise's historical correlation matrix.",
         "actual_teams_only": "Actual teams only",
-        "help_actual_teams": "Filters only current active NHL franchises and excludes historical/defunct/relocated names (e.g. Atlanta Thrashers, Hartford Whalers, Mighty Ducks, Quebec Nordiques)."
+        "help_actual_teams": "Filters only current active NHL franchises and excludes historical/defunct/relocated names (e.g. Atlanta Thrashers, Hartford Whalers, Mighty Ducks, Quebec Nordiques).",
+        "help_bankroll": "Recommended stake calculated using Half-Kelly criterion adjusted to the given bankroll."
     }
 }
 
@@ -654,19 +655,15 @@ else:
     with st.sidebar:
         st.markdown("---")
         
-        # Check if a pending navigation redirect was requested (e.g. from Match Schedule 1-click simulation button)
+        # Check if a pending navigation redirect was requested
         if "pending_nav" in st.session_state:
             st.session_state["main_navigation_radio"] = st.session_state.pop("pending_nav")
             
-        # Handle menu index from session_state
         nav_options = [labels["nav_dashboard"], labels["nav_simulator"], labels["nav_schedule"], labels["nav_raw"], labels["nav_docs"]]
-        saved_nav = st.session_state.get("main_navigation_radio", labels["nav_dashboard"])
-        nav_idx = nav_options.index(saved_nav) if saved_nav in nav_options else 0
         
         menu = st.radio(
             "Navigation" if lang == "EN" else "Navigace",
             nav_options,
-            index=nav_idx,
             key="main_navigation_radio"
         )
         st.session_state["nav_choice"] = menu
@@ -772,7 +769,7 @@ else:
                 plot_bgcolor=plotly_bg,
                 font=dict(color=plotly_font_color)
             )
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
             
         with col_chart2:
@@ -789,7 +786,7 @@ else:
                 plot_bgcolor=plotly_bg,
                 font=dict(color=plotly_font_color)
             )
-            st.plotly_chart(fig2, use_container_width=True)
+            st.plotly_chart(fig2, width="stretch")
 
         st.markdown("---")
         st.markdown(f"### {labels['corr_heatmap_title']}")
@@ -828,7 +825,7 @@ else:
             xaxis=dict(tickfont=dict(size=13, color=plotly_font_color)),
             yaxis=dict(tickfont=dict(size=13, color=plotly_font_color))
         )
-        st.plotly_chart(fig_heatmap, use_container_width=True)
+        st.plotly_chart(fig_heatmap, width="stretch")
 
 
             
@@ -883,7 +880,7 @@ else:
             plot_bgcolor=plotly_bg,
             font=dict(color=plotly_font_color)
         )
-        st.plotly_chart(fig3, use_container_width=True)
+        st.plotly_chart(fig3, width="stretch")
 
 
 
@@ -894,25 +891,19 @@ else:
         
         teams = sorted(df['team'].unique())
         
-        # Restore saved teams from query params or session state
-        saved_team_a = st.query_params.get("team_a", st.session_state.get("team_a", teams[0] if teams else ""))
-        saved_team_b = st.query_params.get("team_b", st.session_state.get("team_b", teams[min(1, len(teams)-1)] if teams else ""))
-        
-        idx_a = teams.index(saved_team_a) if saved_team_a in teams else 0
-        idx_b = teams.index(saved_team_b) if saved_team_b in teams else min(1, len(teams)-1)
+        # Initialize default team selections if not set
+        if "team_a_select" not in st.session_state or st.session_state["team_a_select"] not in teams:
+            st.session_state["team_a_select"] = teams[0] if teams else ""
+        if "team_b_select" not in st.session_state or st.session_state["team_b_select"] not in teams:
+            st.session_state["team_b_select"] = teams[min(1, len(teams)-1)] if teams else ""
         
         col_team1, col_team2, col_model = st.columns([1, 1, 1])
         
         with col_team1:
-            team_a = st.selectbox(labels["home_team"], teams, index=idx_a)
+            team_a = st.selectbox(labels["home_team"], teams, key="team_a_select")
 
         with col_team2:
-            team_b = st.selectbox(labels["away_team"], teams, index=idx_b)
-            
-        st.session_state["team_a"] = team_a
-        st.session_state["team_b"] = team_b
-        st.query_params["team_a"] = team_a
-        st.query_params["team_b"] = team_b
+            team_b = st.selectbox(labels["away_team"], teams, key="team_b_select")
         
         with col_model:
             model_selected = st.selectbox(
@@ -960,27 +951,24 @@ else:
                 logo_a = get_team_logo(team_a)
                 logo_b = get_team_logo(team_b)
                 
-                st.markdown(f"""
-                <div class="calc-container">
-                    <h3 style="color: var(--text-color); text-align: center; margin-bottom: 2rem;">{labels['probabilities']}</h3>
-                    <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 2rem;">
-                        <div style="text-align: center;">
-                            <img src="{logo_a}" style="height: 80px; margin-bottom: 0.5rem;" alt="{team_a}">
-                            <h4 style="color: #FF4B4B; margin: 0;">{team_a}</h4>
-                            <div style="font-size: 2.5rem; font-weight: 800; color: var(--text-color); margin: 0.5rem 0;">{prob_a * 100:.1f}%</div>
-                            <p style="color: #8892B0; margin: 0;">{labels['win_probability']}</p>
-                        </div>
-                        <div style="font-size: 2.2rem; font-weight: 800; color: #FDB813; text-shadow: 0 0 10px rgba(253, 184, 19, 0.3);">VS</div>
-                        <div style="text-align: center;">
-                            <img src="{logo_b}" style="height: 80px; margin-bottom: 0.5rem;" alt="{team_b}">
-                            <h4 style="color: #38BDF8; margin: 0;">{team_b}</h4>
-                            <div style="font-size: 2.5rem; font-weight: 800; color: var(--text-color); margin: 0.5rem 0;">{prob_b * 100:.1f}%</div>
-                            <p style="color: #8892B0; margin: 0;">{labels['win_probability']}</p>
-                        </div>
-
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+                st.markdown(f"""<div class="calc-container">
+<h3 style="color: var(--text-color); text-align: center; margin-bottom: 2rem;">{labels['probabilities']}</h3>
+<div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 2rem;">
+<div style="text-align: center;">
+<img src="{logo_a}" style="height: 80px; margin-bottom: 0.5rem;" alt="{team_a}">
+<h4 style="color: #FF4B4B; margin: 0;">{team_a}</h4>
+<div style="font-size: 2.5rem; font-weight: 800; color: var(--text-color); margin: 0.5rem 0;">{prob_a * 100:.1f}%</div>
+<p style="color: #8892B0; margin: 0;">{labels['win_probability']}</p>
+</div>
+<div style="font-size: 2.2rem; font-weight: 800; color: #FDB813; text-shadow: 0 0 10px rgba(253, 184, 19, 0.3);">VS</div>
+<div style="text-align: center;">
+<img src="{logo_b}" style="height: 80px; margin-bottom: 0.5rem;" alt="{team_b}">
+<h4 style="color: #38BDF8; margin: 0;">{team_b}</h4>
+<div style="font-size: 2.5rem; font-weight: 800; color: var(--text-color); margin: 0.5rem 0;">{prob_b * 100:.1f}%</div>
+<p style="color: #8892B0; margin: 0;">{labels['win_probability']}</p>
+</div>
+</div>
+</div>""", unsafe_allow_html=True)
 
 
                 # Show Odds & Recommended Stake Comparison
@@ -1047,7 +1035,7 @@ else:
                     yaxis=dict(title="Pravděpodobnost výhry (%)" if lang == "CZ" else "Win Probability (%)", range=[0, 105], tickfont=dict(size=13, color=plotly_font_color))
                 )
                 fig_comp.update_traces(textfont=dict(size=15, color='#FFFFFF'))
-                st.plotly_chart(fig_comp, use_container_width=True)
+                st.plotly_chart(fig_comp, width="stretch")
 
 
                 # Historical Head-to-Head Stats Comparison Table
@@ -1102,8 +1090,8 @@ else:
                         min_value=1.01, max_value=50.0, value=float(f"{adj_odd_a:.2f}"), step=0.05
                     )
                 with col_ev2:
-                    st.markdown(f"**Modelová pravděpodobnost ({team_a}):** {prob_a * 100:.1f}%")
-                    st.markdown(f"**Fér kurz modelu:** {1.0/prob_a:.2f}")
+                    st.markdown(f"**Modelová pravděpodobnost výhry ({team_a}):** {prob_a * 100:.1f}%" if lang == "CZ" else f"**Model Win Probability ({team_a}):** {prob_a * 100:.1f}%")
+                    st.markdown(f"**Fér kurz modelu:** {1.0/prob_a:.2f}" if lang == "CZ" else f"**Model Fair Odds:** {1.0/prob_a:.2f}")
 
                 kelly_res = HockeyPredictorML.calculate_kelly_and_ev(prob_a, market_odd_input, bankroll=bankroll)
                 
@@ -1171,10 +1159,8 @@ else:
                     with col_m4:
                         st.caption(f"🕒 {m['formatted_date']}")
                         if st.button(labels["btn_simulate"], key=f"btn_sim_{idx}_{h_name[:3]}_{a_name[:3]}", type="primary"):
-                            st.session_state["team_a"] = h_name
-                            st.session_state["team_b"] = a_name
-                            st.query_params["team_a"] = h_name
-                            st.query_params["team_b"] = a_name
+                            st.session_state["team_a_select"] = h_name
+                            st.session_state["team_b_select"] = a_name
                             st.session_state["pending_nav"] = labels["nav_simulator"]
                             st.rerun()
 
@@ -1203,7 +1189,7 @@ else:
         if select_league:
             filtered_df = filtered_df[filtered_df['league'].isin(select_league)]
             
-        st.dataframe(filtered_df, use_container_width=True)
+        st.dataframe(filtered_df, width="stretch")
 
     elif menu == labels["nav_docs"]:
         st.markdown(f"<div class='main-title'>{labels['nav_docs']}</div>", unsafe_allow_html=True)
